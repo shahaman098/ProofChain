@@ -35,7 +35,7 @@
 <div align="center">
 
 ### Landing Page
-![Landing Page](screenshots/landing-page.png)
+[![Landing Page](screenshots/landing-page.png)](https://github.com/shahaman098/ProofChain/blob/main/01.jpeg)
 *Clean, modern interface introducing the platform*
 
 ### Report Submission Form
