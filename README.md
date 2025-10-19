@@ -38,17 +38,12 @@
 [![Landing Page](screenshots/landing-page.png)](https://github.com/shahaman098/ProofChain/blob/main/01.jpeg)
 *Clean, modern interface introducing the platform*
 
-### Report Submission Form
-![Report Form](screenshots/report-form.png)  
-*Secure form for submitting hate incident reports*
+### Report Submission Form with Dashboard Analytics and Wallet Integration
+[![Report Form](screenshots/report-form.png)  
+*Secure form for submitting hate incident reports*](https://github.com/shahaman098/ProofChain/blob/main/02.jpeg)
 
-### Dashboard Analytics
-![Dashboard](screenshots/dashboard.png)
-*Real-time analytics and report tracking*
+https://github.com/shahaman098/ProofChain/blob/main/04.jpeg
 
-### Wallet Integration
-![Wallet Connect](screenshots/wallet-connect.png)
-*Seamless Pera Wallet integration for blockchain transactions*
 
 </div>
 
