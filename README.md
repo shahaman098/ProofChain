@@ -25,7 +25,7 @@
 
 ## 🎥 Demo Video
 
-> **📹 [Watch the Full Demo Video](https://www.loom.com/share/your-demo-video-id)**
+https://www.loom.com/share/46c24e4bc0b44f6192208b4d0c2cb3c7?sid=6bf755c9-c604-4f7e-9d76-5f018a667936
 > 
 > *Complete walkthrough showing the platform functionality, smart contract deployment, and technical implementation*
 
