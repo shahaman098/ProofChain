@@ -8,7 +8,6 @@
 - **🏗️ Built with**: AlgoKit + PyTeal (Python)  
 - **📋 App ID**: `748025246`
 - **🌐 Network**: Algorand TestNet
-- **🔗 Block Explorer**: [View Contract on AlgoExplorer](https://testnet.algoexplorer.io/application/748025246)
 - **📄 Source Code**: [`proofchain-algokit/smart_contracts/proofchain_contract.py`](proofchain-algokit/smart_contracts/proofchain_contract.py)
 - **🏭 TEAL Artifacts**: [`proofchain-algokit/artifacts/`](proofchain-algokit/artifacts/)ng Platform
 
