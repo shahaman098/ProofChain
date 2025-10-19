@@ -2,7 +2,7 @@
 
 ### **TestNet Deployment Information**
 
-**📱 Smart Contract App ID**: `[TO_BE_UPDATED_AFTER_DEPLOYMENT]`  
+**📱 Smart Contract App ID**: `748025246`  
 **🌐 Network**: Algorand TestNet  
 **📅 Deployment Date**: `[DEPLOYMENT_TIMESTAMP]`  
 **🏦 Deployer Address**: `[DEPLOYER_ADDRESS]`  
@@ -10,8 +10,8 @@
 
 #### **Block Explorer Links**
 
-**🔍 AlgoExplorer**: [View Contract on AlgoExplorer](https://testnet.algoexplorer.io/application/[APP_ID])  
-**🌟 Pera Explorer**: [View on Pera Explorer](https://testnet.explorer.perawallet.app/application/[APP_ID])  
+**🔍 AlgoExplorer**: [View Contract on AlgoExplorer](https://testnet.algoexplorer.io/application/748025246)  
+**🌟 Pera Explorer**: [View on Pera Explorer](https://testnet.explorer.perawallet.app/application/748025246)  
 **📋 Deployment Transaction**: [View Transaction](https://testnet.algoexplorer.io/tx/[DEPLOYMENT_TX_ID])  
 
 #### **Contract Verification Details**

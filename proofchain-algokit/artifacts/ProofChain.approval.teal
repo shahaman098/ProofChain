@@ -2,134 +2,92 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l18
-txn OnCompletion
-int NoOp
-==
-bnz main_l11
-txn OnCompletion
-int OptIn
-==
-bnz main_l10
-txn OnCompletion
-int CloseOut
-==
-bnz main_l9
-txn OnCompletion
-int UpdateApplication
-==
-bnz main_l8
+bnz main_l16
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l7
-err
-main_l7:
-int 0
-b main_l19
-main_l8:
-int 0
-b main_l19
-main_l9:
-int 1
-b main_l19
-main_l10:
-int 1
-b main_l19
-main_l11:
+bnz main_l15
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l14
+txn OnCompletion
+int CloseOut
+==
+bnz main_l13
+txn OnCompletion
+int OptIn
+==
+bnz main_l12
 txna ApplicationArgs 0
 byte "submit_report"
 ==
-bnz main_l17
+bnz main_l11
 txna ApplicationArgs 0
 byte "get_report"
 ==
-bnz main_l16
+bnz main_l10
 txna ApplicationArgs 0
 byte "get_stats"
 ==
-bnz main_l15
+bnz main_l9
 err
-main_l15:
-callsub getstats_3
-b main_l19
-main_l16:
-callsub getreport_2
-b main_l19
-main_l17:
-callsub submitreport_1
-b main_l19
-main_l18:
-callsub initialize_0
-main_l19:
-return
-
-// initialize
-initialize_0:
-proto 0 1
+main_l9:
+byte "Total Reports: "
 byte "total_reports"
-int 0
-app_global_put
+app_global_get
+itob
+concat
+byte " | Version: "
+concat
 byte "version"
-byte "2.0.0"
-app_global_put
-byte "admin"
-txn Sender
-app_global_put
+app_global_get
+concat
+log
 int 1
-retsub
-
-// submit_report
-submitreport_1:
-proto 0 1
+return
+main_l10:
+txna ApplicationArgs 1
+box_get
+store 1
+store 0
+load 0
+log
+int 1
+return
+main_l11:
+txna ApplicationArgs 1
+len
+int 1000
+<=
 txna ApplicationArgs 1
 len
 int 0
 >
-assert
-txna ApplicationArgs 1
-len
-int 500
-<=
+&&
 assert
 txn Sender
-global ZeroAddress
-!=
-assert
-byte "report_"
-byte "total_reports"
-app_global_get
-int 1
-+
-itob
-concat
-txna ApplicationArgs 4
-btoi
-int 1
+byte "last_report_time"
+app_local_get
+int 0
 ==
-bnz submitreport_1_l5
+global LatestTimestamp
 txn Sender
-submitreport_1_l2:
-byte "|"
-concat
+byte "last_report_time"
+app_local_get
+int 60
++
+>=
+||
+assert
+txn TxID
+byte "REPORT:"
 global LatestTimestamp
 itob
 concat
 byte "|"
 concat
 txna ApplicationArgs 1
-concat
-byte "|"
-concat
-txna ApplicationArgs 2
-concat
-byte "|"
-concat
-txna ApplicationArgs 3
-concat
-byte "|"
-concat
-txna ApplicationArgs 4
 concat
 box_put
 byte "total_reports"
@@ -138,71 +96,47 @@ app_global_get
 int 1
 +
 app_global_put
-byte "REPORT_SUBMITTED:"
-byte "total_reports"
-app_global_get
-int 1
-+
-itob
-concat
-byte ":"
-concat
+txn Sender
+byte "last_report_time"
 global LatestTimestamp
-itob
-concat
-byte ":"
-concat
-txna ApplicationArgs 4
-btoi
-int 1
-==
-bnz submitreport_1_l4
-byte "PUBLIC"
-b submitreport_1_l6
-submitreport_1_l4:
-byte "ANON"
-b submitreport_1_l6
-submitreport_1_l5:
-byte "ANONYMOUS"
-b submitreport_1_l2
-submitreport_1_l6:
+app_local_put
+byte "Report submitted with ID: "
+txn TxID
 concat
 log
 int 1
-retsub
-
-// get_report
-getreport_2:
-proto 0 1
-byte "GET_REPORT_CALLED"
-log
+return
+main_l12:
+txn Sender
+byte "last_report_time"
+int 0
+app_local_put
 int 1
-retsub
-
-// get_stats
-getstats_3:
-proto 0 1
-byte "STATS:"
-byte "total_reports:"
-concat
-byte "total_reports"
-app_global_get
-itob
-concat
-byte ":"
-concat
-byte "version:"
-concat
-byte "version"
-app_global_get
-concat
-byte ":"
-concat
-byte "admin:"
-concat
+return
+main_l13:
+int 1
+return
+main_l14:
+txn Sender
 byte "admin"
 app_global_get
-concat
-log
+==
+return
+main_l15:
+txn Sender
+byte "admin"
+app_global_get
+==
+return
+main_l16:
+byte "total_reports"
+int 0
+app_global_put
+byte "version"
+byte "1.0.0"
+app_global_put
+byte "admin"
+txn Sender
+app_global_put
 int 1
-retsub
+return

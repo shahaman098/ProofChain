@@ -6,9 +6,9 @@
 **ProofChain features a completely custom smart contract built with modern AlgoKit:**
 
 - **🏗️ Built with**: AlgoKit + PyTeal (Python)  
-- **📋 App ID**: `[TO_BE_UPDATED_AFTER_DEPLOYMENT]`
+- **📋 App ID**: `748025246`
 - **🌐 Network**: Algorand TestNet
-- **🔗 Block Explorer**: [View Contract on AlgoExplorer](https://testnet.algoexplorer.io/application/[APP_ID])
+- **🔗 Block Explorer**: [View Contract on AlgoExplorer](https://testnet.algoexplorer.io/application/748025246)
 - **📄 Source Code**: [`proofchain-algokit/smart_contracts/proofchain_contract.py`](proofchain-algokit/smart_contracts/proofchain_contract.py)
 - **🏭 TEAL Artifacts**: [`proofchain-algokit/artifacts/`](proofchain-algokit/artifacts/)ng Platform
 
@@ -60,10 +60,10 @@
 
 **TrustChain features a completely custom smart contract built from scratch using PyTeal:**
 
-- **📋 App ID**: `[TO_BE_UPDATED_AFTER_DEPLOYMENT]`
+- **📋 App ID**: `748025246`
 - **🌐 Network**: Algorand TestNet
-- **🔗 Block Explorer**: [View Contract on Asset Hub](https://testnet.explorer.perawallet.app/application/[APP_ID])
-- **📄 Source Code**: [`trustchain-smart-contract/report_contract.py`](trustchain-smart-contract/report_contract.py)
+- **🔗 Block Explorer**: [View Contract on Asset Hub](https://testnet.explorer.perawallet.app/application/748025246)
+- **📄 Source Code**: [`proofchain-algokit/smart_contracts/proofchain_contract.py`](proofchain-algokit/smart_contracts/proofchain_contract.py)
 
 #### **Why This Smart Contract is Custom & Unique:**
 
@@ -105,7 +105,7 @@ def get_stats():
     # Public transparency for community oversight
 ```
 
-**📚 [Complete Smart Contract Documentation →](trustchain-smart-contract/SMART_CONTRACT_DOCUMENTATION.md)**
+**📚 [Complete Smart Contract Documentation →](proofchain-algokit/README.md)**
 
 ---
 
@@ -191,8 +191,8 @@ proofchain/
 ## 🔗 **Block Explorer Links**
 
 ### **Deployed Smart Contract:**
-- **🌐 Pera Explorer**: [https://testnet.explorer.perawallet.app/application/[APP_ID]](https://testnet.explorer.perawallet.app/application/[APP_ID])
-- **🔍 AlgoExplorer**: [https://testnet.algoexplorer.io/application/[APP_ID]](https://testnet.algoexplorer.io/application/[APP_ID])
+- **🌐 Pera Explorer**: [https://testnet.explorer.perawallet.app/application/748025246](https://testnet.explorer.perawallet.app/application/748025246)
+- **🔍 AlgoExplorer**: [https://testnet.algoexplorer.io/application/748025246](https://testnet.algoexplorer.io/application/748025246)
 
 ### **Sample Transactions:**
 - **📝 Report Submission**: [View Transaction](https://testnet.explorer.perawallet.app/tx/[SAMPLE_TX_ID])

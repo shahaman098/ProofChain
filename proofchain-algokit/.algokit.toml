@@ -1,19 +1,25 @@
 [project]
-name = "proofchain-algokit"
+name = "proofchain"
+description = "Decentralized hate crime reporting platform on Algorand"
+version = "1.0.0"
 
-[project.run]
-bootstrap = { commands = ["python -m pip install --upgrade pip", "python -m pip install -e ."], description = "Install dependencies and build the project." }
-build = { commands = ["python -m smart_contracts build"], description = "Build smart contracts" }
-localnet_deploy = { commands = ["python -m smart_contracts deploy localnet"], description = "Deploy smart contracts to localnet" }
-testnet_deploy = { commands = ["python -m smart_contracts deploy testnet"], description = "Deploy smart contracts to testnet" }
+[project.contracts]
+proofchain = { name = "ProofChain", description = "Hate incident reporting smart contract" }
 
-[project.deploy.localnet]
-command = "python -m smart_contracts deploy"
-environment_secrets = []
+[project.networks.localnet]
+algod_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+algod_address = "http://localhost:4001"
+kmd_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+kmd_address = "http://localhost:4002"
 
-[project.deploy.testnet] 
-command = "python -m smart_contracts deploy"
-environment_secrets = ["DEPLOYER_MNEMONIC"]
+[project.networks.testnet]
+algod_token = ""
+algod_address = "https://testnet-api.algonode.cloud"
+kmd_token = ""
+kmd_address = ""
 
-[tool.algokit]
-min_version = "v1.0.0"
+[project.networks.mainnet]
+algod_token = ""
+algod_address = "https://mainnet-api.algonode.cloud"
+kmd_token = ""
+kmd_address = ""

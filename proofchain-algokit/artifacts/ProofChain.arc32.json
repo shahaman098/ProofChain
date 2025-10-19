@@ -1,60 +1,72 @@
 {
   "name": "ProofChain",
-  "description": "Decentralized hate incident reporting smart contract",
-  "version": "2.0.0",
-  "methods": [
-    {
-      "name": "submit_report",
-      "args": [
-        {
-          "name": "message",
-          "type": "string"
-        },
-        {
-          "name": "police_ref",
-          "type": "string"
-        },
-        {
-          "name": "ipfs_cid",
-          "type": "string"
-        },
-        {
-          "name": "is_anonymous",
-          "type": "bool"
+  "description": "Decentralized hate crime reporting smart contract",
+  "version": "1.0.0",
+  "contract": {
+    "name": "ProofChain",
+    "methods": [
+      {
+        "name": "submit_report",
+        "description": "Submit a new hate incident report",
+        "args": [
+          {
+            "name": "message",
+            "type": "string",
+            "description": "Description of the hate incident"
+          },
+          {
+            "name": "police_ref",
+            "type": "string",
+            "description": "Police reference number (optional)"
+          },
+          {
+            "name": "ipfs_cid",
+            "type": "string",
+            "description": "IPFS CID for evidence (optional)"
+          },
+          {
+            "name": "is_anonymous",
+            "type": "string",
+            "description": "Whether report is anonymous (true/false)"
+          }
+        ],
+        "returns": {
+          "type": "void",
+          "description": "Logs report ID on success"
         }
-      ],
-      "returns": {
-        "type": "uint64"
-      }
-    },
-    {
-      "name": "get_report",
-      "args": [
-        {
-          "name": "report_id",
-          "type": "uint64"
+      },
+      {
+        "name": "get_report",
+        "description": "Retrieve a report by its ID",
+        "args": [
+          {
+            "name": "report_id",
+            "type": "bytes",
+            "description": "Transaction ID of the report"
+          }
+        ],
+        "returns": {
+          "type": "string",
+          "description": "Report data as JSON string"
         }
-      ],
-      "returns": {
-        "type": "string"
+      },
+      {
+        "name": "get_stats",
+        "description": "Get platform statistics",
+        "args": [],
+        "returns": {
+          "type": "string",
+          "description": "Platform statistics as JSON string"
+        }
       }
+    ]
+  },
+  "networks": {
+    "testnet": {
+      "appID": 0
     },
-    {
-      "name": "get_stats",
-      "args": [],
-      "returns": {
-        "type": "string"
-      }
-    }
-  ],
-  "state": {
-    "global": {
-      "num_uints": 1,
-      "num_byte_slices": 2
-    },
-    "local": {
-      "num_uints": 0,
-      "num_byte_slices": 0
+    "mainnet": {
+      "appID": 0
     }
   }
 }

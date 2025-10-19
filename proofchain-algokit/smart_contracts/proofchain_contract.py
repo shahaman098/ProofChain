@@ -1,203 +1,171 @@
 """
-ProofChain Smart Contract - Modern AlgoKit Implementation
-
-This is a custom Algorand smart contract built specifically for the TrustChain 
-hate incident reporting platform. It demonstrates:
-
-1. Custom PyTeal logic (not boilerplate)
-2. ABI method definitions
-3. Box storage for scalable report data
-4. Global state management
-5. Proper AlgoKit structure
-
-This contract is NOT copied from any template and provides unique functionality
-for decentralized hate crime reporting with privacy and transparency features.
+ProofChain Smart Contract - Custom PyTeal Implementation
+Decentralized hate crime reporting platform on Algorand
 """
 
-from algosdk import transaction
 from pyteal import *
+from typing import Literal
 
+# Contract constants
+MAX_MESSAGE_LENGTH = 1000
+MAX_POLICE_REF_LENGTH = 50
+MAX_IPFS_CID_LENGTH = 100
+RATE_LIMIT_SECONDS = 60  # 1 minute rate limit
 
 class ProofChainApp:
-    """
-    ProofChain Smart Contract Application
+    """Custom hate incident reporting smart contract"""
     
-    Features:
-    - Submit hate incident reports with metadata
-    - Anonymous reporting support
-    - Evidence linking via IPFS CIDs
-    - Police reference integration  
-    - Rate limiting and spam prevention
-    - Report retrieval and statistics
-    """
-
     def __init__(self):
-        self.app_id = 0
-        self.app_address = ""
-
-    def approval_program(self):
-        """Main approval program with custom ProofChain logic"""
-        
         # Global state keys
-        total_reports_key = Bytes("total_reports")
-        contract_version_key = Bytes("version")
-        admin_key = Bytes("admin")
+        self.total_reports = Bytes("total_reports")
+        self.version = Bytes("version")
+        self.admin = Bytes("admin")
         
-        # Method selectors (ABI-style)
-        submit_report_selector = Bytes("submit_report")
-        get_report_selector = Bytes("get_report")
-        get_stats_selector = Bytes("get_stats")
+        # Local state keys for rate limiting
+        self.last_report_time = Bytes("last_report_time")
         
-        # Initialize contract
-        @Subroutine(TealType.uint64)
-        def initialize():
-            return Seq([
-                App.globalPut(total_reports_key, Int(0)),
-                App.globalPut(contract_version_key, Bytes("2.0.0")),
-                App.globalPut(admin_key, Txn.sender()),
-                Int(1)
-            ])
+    def approval_program(self) -> Expr:
+        """Main approval program logic"""
+        return Cond(
+            [Txn.application_id() == Int(0), self.on_creation()],
+            [Txn.on_completion() == OnComplete.DeleteApplication, self.on_delete()],
+            [Txn.on_completion() == OnComplete.UpdateApplication, self.on_update()],
+            [Txn.on_completion() == OnComplete.CloseOut, self.on_closeout()],
+            [Txn.on_completion() == OnComplete.OptIn, self.on_optin()],
+            [Txn.application_args[0] == Bytes("submit_report"), self.submit_report()],
+            [Txn.application_args[0] == Bytes("get_report"), self.get_report()],
+            [Txn.application_args[0] == Bytes("get_stats"), self.get_stats()],
+        )
+    
+    def clear_program(self) -> Expr:
+        """Clear state program"""
+        return Return(Int(1))
+    
+    def on_creation(self) -> Expr:
+        """Contract creation logic"""
+        return Seq([
+            App.globalPut(self.total_reports, Int(0)),
+            App.globalPut(self.version, Bytes("1.0.0")),
+            App.globalPut(self.admin, Txn.sender()),
+            Return(Int(1))
+        ])
+    
+    def on_delete(self) -> Expr:
+        """Only admin can delete"""
+        return Return(Txn.sender() == App.globalGet(self.admin))
+    
+    def on_update(self) -> Expr:
+        """Only admin can update"""
+        return Return(Txn.sender() == App.globalGet(self.admin))
+    
+    def on_closeout(self) -> Expr:
+        """Allow closeout"""
+        return Return(Int(1))
+    
+    def on_optin(self) -> Expr:
+        """Allow opt-in for rate limiting"""
+        return Seq([
+            App.localPut(Txn.sender(), self.last_report_time, Int(0)),
+            Return(Int(1))
+        ])
+    
+    def submit_report(self) -> Expr:
+        """Submit new hate incident report"""
+        message = Txn.application_args[1]
         
-        # Submit a hate incident report (CUSTOM LOGIC)
-        @Subroutine(TealType.uint64)  
-        def submit_report():
-            # Extract ABI-encoded parameters
-            report_message = Txn.application_args[1]
-            police_ref = Txn.application_args[2] 
-            ipfs_cid = Txn.application_args[3]
-            is_anonymous = Txn.application_args[4]
-            
-            # Generate unique report ID
-            report_id = App.globalGet(total_reports_key) + Int(1)
-            report_key = Concat(Bytes("report_"), Itob(report_id))
-            
-            # Create report data structure (pipe-delimited for easy parsing)
-            timestamp = Global.latest_timestamp()
-            sender_addr = If(
-                Btoi(is_anonymous) == Int(1),
-                Bytes("ANONYMOUS"),
-                Txn.sender()
-            )
-            
-            report_data = Concat(
-                sender_addr, Bytes("|"),
-                Itob(timestamp), Bytes("|"),
-                report_message, Bytes("|"),
-                police_ref, Bytes("|"), 
-                ipfs_cid, Bytes("|"),
-                is_anonymous
-            )
-            
-            # Validation checks
-            return Seq([
-                # Validate inputs
-                Assert(Len(report_message) > Int(0)),
-                Assert(Len(report_message) <= Int(500)),  # Max 500 chars
-                Assert(Txn.sender() != Global.zero_address()),
-                
-                # Store report in box storage (scalable)
-                App.box_put(report_key, report_data),
-                
-                # Update global counters
-                App.globalPut(total_reports_key, report_id),
-                
-                # Log event for transparency
-                Log(Concat(
-                    Bytes("REPORT_SUBMITTED:"),
-                    Itob(report_id), Bytes(":"),
-                    Itob(timestamp), Bytes(":"),
-                    If(Btoi(is_anonymous) == Int(1), Bytes("ANON"), Bytes("PUBLIC"))
-                )),
-                
-                Int(1)
-            ])
-        
-        # Get specific report by ID (simplified)
-        @Subroutine(TealType.uint64)
-        def get_report():
-            return Seq([
-                Log(Bytes("GET_REPORT_CALLED")),
-                Int(1)
-            ])
-        
-        # Get contract statistics
-        @Subroutine(TealType.uint64)
-        def get_stats():
-            return Seq([
-                Log(Concat(
-                    Bytes("STATS:"),
-                    Bytes("total_reports:"), Itob(App.globalGet(total_reports_key)), Bytes(":"),
-                    Bytes("version:"), App.globalGet(contract_version_key), Bytes(":"),
-                    Bytes("admin:"), App.globalGet(admin_key)
-                )),
-                Int(1)
-            ])
-        
-        # Main program routing
-        program = Cond(
-            # Contract creation
-            [Txn.application_id() == Int(0), initialize()],
-            
-            # Application calls
-            [Txn.on_completion() == OnComplete.NoOp, Cond(
-                [Txn.application_args[0] == submit_report_selector, submit_report()],
-                [Txn.application_args[0] == get_report_selector, get_report()],
-                [Txn.application_args[0] == get_stats_selector, get_stats()],
-            )],
-            
-            # Opt-in (not required for this app)
-            [Txn.on_completion() == OnComplete.OptIn, Int(1)],
-            
-            # Close-out (allowed)
-            [Txn.on_completion() == OnComplete.CloseOut, Int(1)],
-            
-            # Prevent updates and deletion (immutable contract)
-            [Txn.on_completion() == OnComplete.UpdateApplication, Int(0)],
-            [Txn.on_completion() == OnComplete.DeleteApplication, Int(0)],
+        # Input validation
+        message_valid = And(
+            Len(message) <= Int(MAX_MESSAGE_LENGTH),
+            Len(message) > Int(0)
         )
         
-        return program
-
-    def clear_state_program(self):
-        """Clear state program (simple approval)"""
-        return Int(1)
-
-    def compile_contracts(self):
-        """Compile the smart contract to TEAL"""
-        approval_teal = compileTeal(
-            self.approval_program(), 
-            Mode.Application, 
-            version=8
+        # Rate limiting check
+        current_time = Global.latest_timestamp()
+        last_time = App.localGet(Txn.sender(), self.last_report_time)
+        rate_limit_passed = Or(
+            last_time == Int(0),  # First report
+            current_time >= last_time + Int(RATE_LIMIT_SECONDS)
         )
         
-        clear_state_teal = compileTeal(
-            self.clear_state_program(),
-            Mode.Application,
-            version=8
+        # Generate unique report ID using transaction ID
+        report_id = Txn.tx_id()
+        
+        # Create report data
+        report_data = Concat(
+            Bytes("REPORT:"),
+            Itob(current_time),
+            Bytes("|"),
+            message
         )
         
-        return approval_teal, clear_state_teal
-
-    def get_create_app_params(self):
-        """Get parameters for creating the application"""
-        approval_teal, clear_state_teal = self.compile_contracts()
+        return Seq([
+            Assert(message_valid),
+            Assert(rate_limit_passed),
+            
+            # Store report in box storage
+            App.box_put(report_id, report_data),
+            
+            # Update global counters
+            App.globalPut(self.total_reports, App.globalGet(self.total_reports) + Int(1)),
+            
+            # Update rate limiting
+            App.localPut(Txn.sender(), self.last_report_time, current_time),
+            
+            # Return report ID
+            Log(Concat(Bytes("Report submitted with ID: "), report_id)),
+            Return(Int(1))
+        ])
+    
+    def get_report(self) -> Expr:
+        """Retrieve report by ID"""
+        report_id = Txn.application_args[1]
         
-        return {
-            "approval_program": approval_teal,
-            "clear_program": clear_state_teal,
-            "global_schema": transaction.StateSchema(
-                num_uints=1,      # total_reports counter
-                num_byte_slices=2  # version, admin
-            ),
-            "local_schema": transaction.StateSchema(
-                num_uints=0,
-                num_byte_slices=0
-            ),
-            "extra_pages": 1  # For box storage
-        }
+        return Seq([
+            # Get report data
+            report_data := App.box_get(report_id),
+            
+            # Return report data
+            Log(report_data.value()),
+            Return(Int(1))
+        ])
+    
+    def get_stats(self) -> Expr:
+        """Get platform statistics"""
+        total = App.globalGet(self.total_reports)
+        version = App.globalGet(self.version)
+        
+        stats = Concat(
+            Bytes("Total Reports: "),
+            Itob(total),
+            Bytes(" | Version: "),
+            version
+        )
+        
+        return Seq([
+            Log(stats),
+            Return(Int(1))
+        ])
 
+# Contract instance
+app = ProofChainApp()
 
-# Factory function for easier deployment
-def create_proofchain_app():
-    """Create and return a ProofChain application instance"""
-    return ProofChainApp()
+# Export the programs
+def approval_program() -> str:
+    """Compile approval program to TEAL"""
+    return compileTeal(app.approval_program(), mode=Mode.Application, version=8)
+
+def clear_program() -> str:
+    """Compile clear program to TEAL"""
+    return compileTeal(app.clear_program(), mode=Mode.Application, version=8)
+
+if __name__ == "__main__":
+    # Generate TEAL files
+    with open("artifacts/ProofChain.approval.teal", "w") as f:
+        f.write(approval_program())
+    
+    with open("artifacts/ProofChain.clear.teal", "w") as f:
+        f.write(clear_program())
+    
+    print("✅ Smart contract compiled successfully!")
+    print("📄 Generated artifacts/ProofChain.approval.teal")
+    print("📄 Generated artifacts/ProofChain.clear.teal")

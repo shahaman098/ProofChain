@@ -8,7 +8,7 @@ const algodClient = new algosdk.Algodv2("", "https://testnet-api.algonode.cloud"
 export const peraWallet = new PeraWalletConnect();
 
 // Your deployed smart contract App ID
-export const APP_ID = 748001402;
+export const APP_ID = 748025246;
 
 // Create a helper function to call the smart contract
 export async function submitReport(sender, reportText) {

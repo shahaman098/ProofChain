@@ -1,155 +1,83 @@
+#!/usr/bin/env python3
 """
-Deploy ProofChain Smart Contract to Algorand LocalNet
-This script demonstrates AlgoKit LocalNet deployment capability
+Deploy ProofChain smart contract to LocalNet
 """
 
 import os
-import sys
-from pathlib import Path
+import json
 from algosdk import account, mnemonic
 from algosdk.v2client import algod
-from algosdk.transaction import ApplicationCreateTxn, StateSchema, wait_for_confirmation
-
-# Add parent directory to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
-from smart_contracts.proofchain_contract import ProofChainApp
+from algosdk.transaction import ApplicationCreateTxn
 
 # LocalNet configuration
-LOCALNET_ALGOD_ADDRESS = "http://localhost:4001"
-LOCALNET_ALGOD_TOKEN = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ALGOD_TOKEN = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ALGOD_ADDRESS = "http://localhost:4001"
+ALGOD_PORT = ""
 
-def deploy_to_localnet():
-    """Deploy ProofChain contract to AlgoKit LocalNet"""
-    print("🚀 Deploying ProofChain to LocalNet...")
+def load_contract():
+    """Load the compiled contract"""
+    with open("artifacts/ProofChain.approval.teal", "r") as f:
+        approval_program = f.read()
     
-    try:
-        # Connect to LocalNet
-        algod_client = algod.AlgodClient(LOCALNET_ALGOD_TOKEN, LOCALNET_ALGOD_ADDRESS)
-        
-        # Test connection
-        status = algod_client.status()
-        print(f"✅ Connected to LocalNet (Round: {status['last-round']})")
-        
-        # Use default LocalNet account (for demo)
-        # In production, use proper key management
-        deployer_mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
-        private_key = mnemonic.to_private_key(deployer_mnemonic)
-        deployer_address = account.address_from_private_key(private_key)
-        
-        print(f"🏦 Deploying from: {deployer_address}")
-        
-        # Check balance
-        account_info = algod_client.account_info(deployer_address)
-        balance = account_info.get('amount', 0) / 1_000_000
-        print(f"💰 Account balance: {balance:.6f} ALGO")
-        
-        # Create ProofChain app instance
-        app = ProofChainApp()
-        
-        # Get contract parameters
-        approval_teal, clear_state_teal = app.compile_contracts()
-        
-        # Compile programs
-        approval_result = algod_client.compile(approval_teal)
-        clear_result = algod_client.compile(clear_state_teal)
-        
-        approval_binary = approval_result['result']
-        clear_binary = clear_result['result']
-        
-        # Get transaction parameters
-        params = algod_client.suggested_params()
-        
-        # Create application creation transaction
-        create_txn = ApplicationCreateTxn(
-            sender=deployer_address,
-            sp=params,
-            on_complete=0,  # NoOp
-            approval_program=approval_binary,
-            clear_program=clear_binary,
-            global_schema=StateSchema(num_uints=1, num_byte_slices=2),
-            local_schema=StateSchema(num_uints=0, num_byte_slices=0),
-            extra_pages=1  # For box storage
-        )
-        
-        # Sign transaction
-        signed_txn = create_txn.sign(private_key)
-        
-        # Submit transaction
-        tx_id = algod_client.send_transaction(signed_txn)
-        print(f"📤 Transaction submitted: {tx_id}")
-        
-        # Wait for confirmation
-        confirmed_txn = wait_for_confirmation(algod_client, tx_id, 4)
-        app_id = confirmed_txn['application-index']
-        
-        print(f"🎉 ProofChain deployed successfully!")
-        print(f"📱 App ID: {app_id}")
-        print(f"🔗 LocalNet Explorer: http://localhost:8980/application/{app_id}")
-        
-        # Save deployment info
-        deployment_info = {
-            "network": "localnet",
-            "app_id": app_id,
-            "tx_id": tx_id,
-            "deployer": deployer_address,
-            "round": confirmed_txn['confirmed-round']
-        }
-        
-        import json
-        with open("localnet_deployment.json", "w") as f:
-            json.dump(deployment_info, f, indent=2)
-        
-        print(f"💾 Deployment info saved to localnet_deployment.json")
-        
-        # Test the contract
-        print("\n🧪 Testing contract functionality...")
-        test_contract(algod_client, private_key, app_id)
-        
-        return app_id
-        
-    except Exception as e:
-        print(f"❌ Deployment failed: {str(e)}")
-        print("\n💡 Make sure LocalNet is running:")
-        print("   algokit localnet start")
-        return None
+    with open("artifacts/ProofChain.clear.teal", "r") as f:
+        clear_program = f.read()
+    
+    return approval_program, clear_program
 
-def test_contract(client, private_key, app_id):
-    """Test basic contract functionality"""
-    try:
-        sender = account.address_from_private_key(private_key)
-        params = client.suggested_params()
-        
-        # Test submit_report
-        from algosdk.transaction import ApplicationNoOpTxn
-        
-        app_args = [
-            "submit_report".encode(),
-            "Test hate incident report for LocalNet deployment verification".encode(),
-            "TEST_REF_123".encode(),
-            "QmTestIPFSHash".encode(),
-            b"0"  # Not anonymous
-        ]
-        
-        test_txn = ApplicationNoOpTxn(
-            sender=sender,
-            sp=params,
-            index=app_id,
-            app_args=app_args
-        )
-        
-        signed_test = test_txn.sign(private_key)
-        test_tx_id = client.send_transaction(signed_test)
-        
-        confirmed = wait_for_confirmation(client, test_tx_id, 4)
-        
-        if 'logs' in confirmed:
-            print(f"✅ Test report submitted successfully!")
-            print(f"📋 Transaction: {test_tx_id}")
-        else:
-            print("⚠️  Test completed but no logs found")
-            
-    except Exception as e:
-        print(f"⚠️  Contract test failed: {e}")
+def deploy_contract():
+    """Deploy the smart contract to LocalNet"""
+    
+    # Initialize client
+    client = algod.AlgodClient(ALGOD_TOKEN, ALGOD_ADDRESS, ALGOD_PORT)
+    
+    # Use default LocalNet account
+    deployer_mnemonic = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon"
+    deployer_private_key = mnemonic.to_private_key(deployer_mnemonic)
+    deployer_address = account.address_from_private_key(deployer_private_key)
+    
+    print(f"🚀 Deploying from: {deployer_address}")
+    
+    # Get suggested parameters
+    suggested_params = client.suggested_params()
+    
+    # Load contract
+    approval_program, clear_program = load_contract()
+    
+    # Create application
+    txn = ApplicationCreateTxn(
+        sender=deployer_address,
+        sp=suggested_params,
+        on_complete=0,  # NoOp
+        approval_program=approval_program,
+        clear_program=clear_program,
+        global_schema=algosdk.future.transaction.StateSchema(num_uints=1, num_byteslices=2),
+        local_schema=algosdk.future.transaction.StateSchema(num_uints=1, num_byteslices=0),
+    )
+    
+    # Sign and send transaction
+    signed_txn = txn.sign(deployer_private_key)
+    tx_id = client.send_transaction(signed_txn)
+    
+    # Wait for confirmation
+    print(f"⏳ Waiting for confirmation...")
+    result = algosdk.future.transaction.wait_for_confirmation(client, tx_id, 4)
+    
+    app_id = result['application-index']
+    print(f"✅ Contract deployed successfully!")
+    print(f"📋 App ID: {app_id}")
+    print(f"🔗 Transaction ID: {tx_id}")
+    
+    return app_id, tx_id
 
 if __name__ == "__main__":
-    deploy_to_localnet()
+    try:
+        app_id, tx_id = deploy_contract()
+        
+        print("\n🎉 LOCALNET DEPLOYMENT SUCCESSFUL!")
+        print(f"📱 App ID: {app_id}")
+        print(f"🔗 Transaction: http://localhost:4001/v2/transactions/{tx_id}")
+        
+    except Exception as e:
+        print(f"❌ Deployment failed: {e}")
+        print("💡 Make sure LocalNet is running: algokit localnet start")
+        exit(1)
