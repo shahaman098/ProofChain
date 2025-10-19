@@ -1,0 +1,164 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l16
+txn OnCompletion
+int OptIn
+==
+bnz main_l15
+txn OnCompletion
+int NoOp
+==
+bnz main_l10
+txn OnCompletion
+int CloseOut
+==
+bnz main_l9
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l8
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l7
+err
+main_l7:
+int 0
+b main_l17
+main_l8:
+int 0
+b main_l17
+main_l9:
+int 1
+b main_l17
+main_l10:
+txna ApplicationArgs 0
+byte "submit_report"
+==
+bnz main_l14
+txna ApplicationArgs 0
+byte "get_stats"
+==
+bnz main_l13
+err
+main_l13:
+callsub getstats_2
+b main_l17
+main_l14:
+callsub submitreport_1
+b main_l17
+main_l15:
+txn Sender
+byte "user_reports"
+int 0
+app_local_put
+txn Sender
+byte "last_report"
+int 0
+app_local_put
+int 1
+b main_l17
+main_l16:
+callsub initializecontract_0
+main_l17:
+return
+
+// initialize_contract
+initializecontract_0:
+proto 0 1
+byte "total_reports"
+int 0
+app_global_put
+byte "version"
+byte "1.0.0"
+app_global_put
+int 1
+retsub
+
+// submit_report
+submitreport_1:
+proto 0 1
+txn Sender
+global ZeroAddress
+!=
+assert
+txn Sender
+byte "last_report"
+app_local_get
+int 0
+==
+global LatestTimestamp
+txn Sender
+byte "last_report"
+app_local_get
+-
+int 60
+>=
+||
+assert
+txna ApplicationArgs 1
+len
+int 0
+>
+assert
+txna ApplicationArgs 1
+len
+int 1000
+<=
+assert
+byte "total_reports"
+byte "total_reports"
+app_global_get
+int 1
++
+app_global_put
+txn Sender
+byte "user_reports"
+txn Sender
+byte "user_reports"
+app_local_get
+int 1
++
+app_local_put
+txn Sender
+byte "last_report"
+global LatestTimestamp
+app_local_put
+byte "REPORT:"
+byte "total_reports"
+app_global_get
+itob
+concat
+byte ":"
+concat
+global LatestTimestamp
+itob
+concat
+byte ":"
+concat
+txna ApplicationArgs 1
+concat
+log
+int 1
+retsub
+
+// get_stats
+getstats_2:
+proto 0 1
+byte "STATS:"
+byte "total_reports:"
+concat
+byte "total_reports"
+app_global_get
+itob
+concat
+byte ":version:"
+concat
+byte "version"
+app_global_get
+concat
+log
+int 1
+retsub

@@ -1,0 +1,46 @@
+# AlgoKit Configuration for TrustChain
+
+name: trustchain-smart-contract
+type: app
+framework: pyteal
+
+# Contract deployment configuration
+deploy:
+  production:
+    network: mainnet
+    funded: false
+  testnet:
+    network: testnet  
+    funded: true
+  localnet:
+    network: localnet
+    funded: true
+
+# Smart contract configuration
+contract:
+  name: TrustChainReportContract
+  description: Custom smart contract for decentralized hate incident reporting
+  version: "1.0.0"
+  
+  # State schema
+  global_state:
+    ints: 2      # total_reports counter, version stored as bytes so 0 here
+    bytes: 1     # version string
+    
+  local_state:
+    ints: 2      # user_report_count, last_report_time  
+    bytes: 0     # No local byte storage needed
+
+# Development configuration
+dev:
+  compile_pyteal: true
+  output_teal: true
+  deploy_localnet: true
+
+# Build configuration  
+build:
+  source_dir: "."
+  output_dir: "artifacts"
+  teal_files:
+    - "approval.teal"
+    - "clear_state.teal"

@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "proofchain-algokit"
+version = "0.1.0"
+description = "ProofChain - Decentralized Hate Incident Reporting Smart Contract"
+authors = [
+    {name = "TrustChain Team", email = "team@trustchain.dev"},
+]
+readme = "README.md"
+requires-python = ">=3.12"
+keywords = ["algorand", "smart-contracts", "blockchain", "hate-crime-reporting"]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "algokit-utils>=2.2.0,<3",
+    "algosdk>=2.6.0,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "algokit-utils[dev]>=2.2.0,<3",
+    "pytest>=7.4.0,<8",
+    "pytest-cov>=4.1.0,<5",
+    "ruff>=0.1.6,<1",
+    "mypy>=1.7.1,<2",
+]
+
+[project.urls]
+repository = "https://github.com/trustchain/proofchain-algokit"
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "ANN", "UP", "N", "C", "B"]
+ignore = [
+  "ANN101", # Missing type annotation for `self`
+  "ANN102", # Missing type annotation for `cls` 
+  "ANN401", # Any usage
+  "C901",   # Complex structure
+  "E501",   # Line too long (we have line-length set)
+]
+unfixable = ["B"]
+target-version = "py312"
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.mypy]
+python_version = "3.12"
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+allow_untyped_decorators = true
+allow_any_generics = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

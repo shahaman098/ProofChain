@@ -1,0 +1,208 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l18
+txn OnCompletion
+int NoOp
+==
+bnz main_l11
+txn OnCompletion
+int OptIn
+==
+bnz main_l10
+txn OnCompletion
+int CloseOut
+==
+bnz main_l9
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l8
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l7
+err
+main_l7:
+int 0
+b main_l19
+main_l8:
+int 0
+b main_l19
+main_l9:
+int 1
+b main_l19
+main_l10:
+int 1
+b main_l19
+main_l11:
+txna ApplicationArgs 0
+byte "submit_report"
+==
+bnz main_l17
+txna ApplicationArgs 0
+byte "get_report"
+==
+bnz main_l16
+txna ApplicationArgs 0
+byte "get_stats"
+==
+bnz main_l15
+err
+main_l15:
+callsub getstats_3
+b main_l19
+main_l16:
+callsub getreport_2
+b main_l19
+main_l17:
+callsub submitreport_1
+b main_l19
+main_l18:
+callsub initialize_0
+main_l19:
+return
+
+// initialize
+initialize_0:
+proto 0 1
+byte "total_reports"
+int 0
+app_global_put
+byte "version"
+byte "2.0.0"
+app_global_put
+byte "admin"
+txn Sender
+app_global_put
+int 1
+retsub
+
+// submit_report
+submitreport_1:
+proto 0 1
+txna ApplicationArgs 1
+len
+int 0
+>
+assert
+txna ApplicationArgs 1
+len
+int 500
+<=
+assert
+txn Sender
+global ZeroAddress
+!=
+assert
+byte "report_"
+byte "total_reports"
+app_global_get
+int 1
++
+itob
+concat
+txna ApplicationArgs 4
+btoi
+int 1
+==
+bnz submitreport_1_l5
+txn Sender
+submitreport_1_l2:
+byte "|"
+concat
+global LatestTimestamp
+itob
+concat
+byte "|"
+concat
+txna ApplicationArgs 1
+concat
+byte "|"
+concat
+txna ApplicationArgs 2
+concat
+byte "|"
+concat
+txna ApplicationArgs 3
+concat
+byte "|"
+concat
+txna ApplicationArgs 4
+concat
+box_put
+byte "total_reports"
+byte "total_reports"
+app_global_get
+int 1
++
+app_global_put
+byte "REPORT_SUBMITTED:"
+byte "total_reports"
+app_global_get
+int 1
++
+itob
+concat
+byte ":"
+concat
+global LatestTimestamp
+itob
+concat
+byte ":"
+concat
+txna ApplicationArgs 4
+btoi
+int 1
+==
+bnz submitreport_1_l4
+byte "PUBLIC"
+b submitreport_1_l6
+submitreport_1_l4:
+byte "ANON"
+b submitreport_1_l6
+submitreport_1_l5:
+byte "ANONYMOUS"
+b submitreport_1_l2
+submitreport_1_l6:
+concat
+log
+int 1
+retsub
+
+// get_report
+getreport_2:
+proto 0 1
+byte "GET_REPORT_CALLED"
+log
+int 1
+retsub
+
+// get_stats
+getstats_3:
+proto 0 1
+byte "STATS:"
+byte "total_reports:"
+concat
+byte "total_reports"
+app_global_get
+itob
+concat
+byte ":"
+concat
+byte "version:"
+concat
+byte "version"
+app_global_get
+concat
+byte ":"
+concat
+byte "admin:"
+concat
+byte "admin"
+app_global_get
+concat
+log
+int 1
+retsub

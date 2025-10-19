@@ -1,0 +1,19 @@
+[project]
+name = "proofchain-algokit"
+
+[project.run]
+bootstrap = { commands = ["python -m pip install --upgrade pip", "python -m pip install -e ."], description = "Install dependencies and build the project." }
+build = { commands = ["python -m smart_contracts build"], description = "Build smart contracts" }
+localnet_deploy = { commands = ["python -m smart_contracts deploy localnet"], description = "Deploy smart contracts to localnet" }
+testnet_deploy = { commands = ["python -m smart_contracts deploy testnet"], description = "Deploy smart contracts to testnet" }
+
+[project.deploy.localnet]
+command = "python -m smart_contracts deploy"
+environment_secrets = []
+
+[project.deploy.testnet] 
+command = "python -m smart_contracts deploy"
+environment_secrets = ["DEPLOYER_MNEMONIC"]
+
+[tool.algokit]
+min_version = "v1.0.0"

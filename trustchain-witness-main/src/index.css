@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TrustChain Civic-Tech Theme — "Civic Trust Blue" System
+   Calm, trustworthy, tech-forward aesthetic for transparent governance.
+   All colors in HSL format for proper theming.
+*/
+
+@layer base {
+  :root {
+    /* Dashboard Background - Subtle grey-blue (#F4F6FA) */
+    --background: 215 33% 97%;
+    /* Neutral Dark Text (#1E1E1E) */
+    --foreground: 0 0% 12%;
+
+    /* Card Background - Clean white (#FFFFFF) */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
+
+    /* Popover - Clean white */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+
+    /* Primary - Trust Blue (#0066FF) */
+    --primary: 215 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    /* Primary Light (#E6F0FF) */
+    --primary-light: 215 100% 95%;
+    --primary-glow: 215 100% 65%;
+
+    /* Secondary - Light grey for subtle elements */
+    --secondary: 215 20% 92%;
+    --secondary-foreground: 0 0% 12%;
+
+    /* Muted - Soft backgrounds */
+    --muted: 215 20% 96%;
+    --muted-foreground: 215 15% 45%;
+
+    /* Accent - Modern Purple (#5E5CE6) for charts/emphasis */
+    --accent: 241 72% 63%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Success - Verification Green (#4CAF50) */
+    --success: 122 39% 49%;
+    --success-foreground: 0 0% 100%;
+
+    /* Destructive/Error - Unverified Red (#E53935) */
+    --destructive: 4 79% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Warning - Pending Orange (#FFB020) */
+    --warning: 38 100% 56%;
+    --warning-foreground: 0 0% 12%;
+
+    /* Borders - Soft, subtle (#E0E4EA) */
+    --border: 215 20% 88%;
+    --input: 215 20% 88%;
+    --ring: 215 100% 50%;
+
+    /* Radius - Civic-tech rounded corners (12-16px) */
+    --radius: 0.75rem;
+
+    /* Shadows - Very soft (rgba(0, 0, 0, 0.06)) */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 0 24px rgba(0, 102, 255, 0.15);
+
+    /* Gradients - Subtle, professional */
+    --gradient-primary: linear-gradient(135deg, hsl(215 100% 50%), hsl(215 100% 65%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(215 33% 98%));
+    --gradient-subtle: linear-gradient(180deg, hsl(215 33% 97%), hsl(215 20% 96%));
+  }
+
+  .dark {
+    /* Dark mode - maintains trust blue with darker backgrounds */
+    --background: 215 30% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 215 25% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 215 25% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 215 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 215 100% 20%;
+    --primary-glow: 215 100% 65%;
+
+    --secondary: 215 20% 20%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 215 20% 18%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 241 72% 63%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 122 39% 49%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 4 79% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 38 100% 56%;
+    --warning-foreground: 0 0% 12%;
+
+    --border: 215 20% 20%;
+    --input: 215 20% 20%;
+    --ring: 215 100% 50%;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-glow: 0 0 24px rgba(0, 102, 255, 0.25);
+
+    --gradient-primary: linear-gradient(135deg, hsl(215 100% 50%), hsl(215 100% 65%));
+    --gradient-card: linear-gradient(180deg, hsl(215 25% 12%), hsl(215 25% 10%));
+    --gradient-subtle: linear-gradient(180deg, hsl(215 30% 8%), hsl(215 25% 12%));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Civic-tech typography improvements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}
